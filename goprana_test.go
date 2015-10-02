@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	appName = "gotquotes-go"
-	vip     = "gotquotes-go"
+	appName = "go-gotquotes"
+	vip     = "go-gotquotes"
 )
 
 type quoteResp struct {
@@ -29,7 +29,7 @@ var reqChecks = map[string]quoteResp{
 }
 
 var propChecks = map[string]string{
-	"eureka.vipAddress": "gotquotes-go",
+	"eureka.vipAddress": "go-gotquotes",
 	"eureka.port":       "5000",
 }
 
