@@ -29,12 +29,8 @@ const DefaultPort = 8078
 func NewClient(port int) Client {
 	c := Client{
 		url: fmt.Sprintf("http://localhost:%v", port),
-		// If not keep-alive's are not disabled, prana keeps sending
-		// the requests to the endpoint used to open the connection.
 		httpcli: &http.Client{
-			Transport: &http.Transport{
-				DisableKeepAlives: true,
-			},
+			Transport: &http.Transport{},
 		},
 	}
 	return c
