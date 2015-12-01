@@ -12,7 +12,7 @@ import (
 )
 
 func ExampleClient_Get() {
-	c := goprana.NewClient(goprana.DefaultPort, nil)
+	c := goprana.NewClient(goprana.DefaultPort)
 
 	resp, err := c.Get("gotquotes-go", "/api/quote/random")
 	if err != nil {

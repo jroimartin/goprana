@@ -20,23 +20,22 @@ import (
 type Client struct {
 	url     string
 	httpcli *http.Client
+
+	// FollowRedirects allows to specify if the client should follow redirects.
+	FollowRedirects bool
 }
 
 // DefaultPort is default Prana port.
 const DefaultPort = 8078
 
-// NewClient returns Prana Client. If httpcli is nil, a new http client is
-// created.
-func NewClient(port int, httpcli *http.Client) Client {
-	if httpcli == nil {
-		httpcli = &http.Client{
-			Transport: &http.Transport{},
-		}
-	}
-
+// NewClient returns Prana Client.
+func NewClient(port int) Client {
 	c := Client{
-		url:     fmt.Sprintf("http://localhost:%v", port),
-		httpcli: httpcli,
+		url: fmt.Sprintf("http://localhost:%v", port),
+		httpcli: &http.Client{
+			Transport: &http.Transport{},
+		},
+		FollowRedirects: true,
 	}
 	return c
 }
@@ -71,24 +70,23 @@ func (c Client) DynamicProperties(ids ...string) (props map[string]string, err e
 
 // Get sends a GET request to the specified VIP and path via Ribbon.
 func (c Client) Get(vip, path string) (resp *http.Response, err error) {
-	if vip == "" || path == "" {
-		return nil, errors.New("invalid vip or path values")
+	req, err := http.NewRequest("GET", "", nil)
+	if err != nil {
+		return nil, err
 	}
-
-	url := fmt.Sprintf("%v/proxy?vip=%v&path=%v", c.url, vip, path)
-	return c.httpcli.Get(url)
+	return c.Do(vip, path, req)
 }
 
 // Post sends a POST request to the specified VIP and path via Ribbon. Caller
 // should close resp.Body when done reading from it. If the provided body is an
 // io.Closer, it is closed after the request.
 func (c Client) Post(vip, path, bodyType string, body io.Reader) (resp *http.Response, err error) {
-	if vip == "" || path == "" {
-		return nil, errors.New("invalid vip or path values")
+	req, err := http.NewRequest("POST", "", body)
+	if err != nil {
+		return nil, err
 	}
-
-	url := fmt.Sprintf("%v/proxy?vip=%v&path=%v", c.url, vip, path)
-	return c.httpcli.Post(url, bodyType, body)
+	req.Header.Set("Content-Type", bodyType)
+	return c.Do(vip, path, req)
 }
 
 // Do sends a request to the specified VIP and path via Ribbon. Caller should
@@ -105,7 +103,13 @@ func (c Client) Do(vip, path string, req *http.Request) (resp *http.Response, er
 		return nil, err
 	}
 	req.URL = url
-	return c.httpcli.Do(req)
+
+	if c.FollowRedirects {
+		resp, err = c.httpcli.Do(req)
+	} else {
+		resp, err = c.httpcli.Transport.RoundTrip(req)
+	}
+	return
 }
 
 // Hosts returns a list of hosts which are marked as UP in Eureka for the
