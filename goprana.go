@@ -25,13 +25,18 @@ type Client struct {
 // DefaultPort is default Prana port.
 const DefaultPort = 8078
 
-// NewClient returns Prana Client.
-func NewClient(port int) Client {
-	c := Client{
-		url: fmt.Sprintf("http://localhost:%v", port),
-		httpcli: &http.Client{
+// NewClient returns Prana Client. If httpcli is nil, a new http client is
+// created.
+func NewClient(port int, httpcli *http.Client) Client {
+	if httpcli == nil {
+		httpcli = &http.Client{
 			Transport: &http.Transport{},
-		},
+		}
+	}
+
+	c := Client{
+		url:     fmt.Sprintf("http://localhost:%v", port),
+		httpcli: httpcli,
 	}
 	return c
 }

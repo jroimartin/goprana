@@ -34,7 +34,7 @@ var propChecks = map[string]string{
 }
 
 func TestDynamicProperties(t *testing.T) {
-	c := goprana.NewClient(goprana.DefaultPort)
+	c := goprana.NewClient(goprana.DefaultPort, nil)
 
 	ids := []string{}
 	for k := range propChecks {
@@ -59,7 +59,7 @@ func TestDynamicProperties(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	c := goprana.NewClient(goprana.DefaultPort)
+	c := goprana.NewClient(goprana.DefaultPort, nil)
 
 	for path, want := range reqChecks {
 		resp, err := c.Get(vip, path)
@@ -84,7 +84,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestPost(t *testing.T) {
-	c := goprana.NewClient(goprana.DefaultPort)
+	c := goprana.NewClient(goprana.DefaultPort, nil)
 
 	for path := range reqChecks {
 		resp, err := c.Post(vip, path, "", nil)
@@ -100,7 +100,7 @@ func TestPost(t *testing.T) {
 }
 
 func TestDo(t *testing.T) {
-	c := goprana.NewClient(goprana.DefaultPort)
+	c := goprana.NewClient(goprana.DefaultPort, nil)
 
 	for path, want := range reqChecks {
 		req, err := http.NewRequest("GET", "", nil)
@@ -129,7 +129,7 @@ func TestDo(t *testing.T) {
 }
 
 func TestHosts(t *testing.T) {
-	c := goprana.NewClient(goprana.DefaultPort)
+	c := goprana.NewClient(goprana.DefaultPort, nil)
 
 	hosts, err := c.Hosts(appName, vip)
 	if err != nil {
